@@ -1,13 +1,40 @@
 package soBeSorted;
 
-import java.awt.*;
-import java.awt.print.*;
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
+
+/*
+ * Work out the Mean (the simple average of the numbers)Then for each
+ * number: subtract the Mean and square the result (the squared difference).
+ * Then work out the average of those squared differences. (Why Square?)
+ */
 
 public class Receipt {
 	double[] prices;
+
 
 	public static void main(String[] args) {
 		DateFormat f = new SimpleDateFormat("MMM_dd_yyyy");
@@ -68,20 +95,22 @@ public class Receipt {
 	 *            String is the name of the file to be saved at
 	 */
 	static void metaSave(String data, String fileName) {
-		String[] currentData = retrieve(fileName);
+		String[] currentData = retrieveByLine(fileName);
 		String[] newData;
 		if (currentData == null) {
 			newData = new String[1];
 			newData[0] = data;
+			System.out.println("New existing file");
 		} else {
 			newData = new String[currentData.length + 1];
 			for (int i = 0; i < currentData.length; i++) {
 				newData[i] = currentData[i];
 			}
 			newData[currentData.length] = data;
+			System.out.println("Adding to the end");
 		}
 
-		save(newData, fileName);
+		saveByLine(newData, fileName);
 
 	}
 
@@ -96,8 +125,8 @@ public class Receipt {
 	 */
 	static void save(String[] data, String fileName) {
 		try {
-			FileOutputStream fos = new FileOutputStream("C:/"
-					+ "data" + ".txt");
+			FileOutputStream fos = new FileOutputStream("P:/" + fileName
+					+ ".txt");
 
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 
@@ -109,6 +138,38 @@ public class Receipt {
 			System.out.println("Error Saving Data");
 		}
 
+	}
+
+	static void saveByLine(String[] data, String fileName) {
+		File saveFile = new File("P:/" + fileName + ".txt");
+		if (!saveFile.exists()) {// this part checks for if the file already
+									// exists
+			System.out.println("Trying to create new file");
+			try {
+				saveFile.createNewFile();
+				System.out.println("File successfully created.");
+
+			} catch (IOException e) {
+				System.out.println("File not created");
+				e.printStackTrace();
+			}
+		}
+
+		// this part writes the list of primes to the file
+		try {
+			// Buffered writer writes data
+			BufferedWriter output = new BufferedWriter(new FileWriter(saveFile));
+			// it is an object that iterates over the prime number list
+			for (int i = 0; i < data.length; i++) {
+				output.write(data[i]);
+				output.newLine();
+			}
+			// closing the
+			output.close();
+		} catch (Exception e) {
+			// if anything goes wrong print the source
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -140,8 +201,45 @@ public class Receipt {
 
 	}
 
+	public static String[] retrieveByLine(String fileName) {
+		File dataFile = new File("P:/" + fileName + ".txt");
+		BufferedReader in;
+		List<String> data = new ArrayList();
+
+		if (dataFile.exists()) {
+			try {
+				in = new BufferedReader(new FileReader(dataFile));
+				String currentLine = null;
+				String currentData = null;
+				while ((currentLine = in.readLine()) != null) {
+					currentData = currentLine;
+					if ((currentData != null)) {
+						data.add(currentData);
+					}
+
+				}
+				in.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		String[] dataArray = new String[data.size()];
+		for (int i = 0; i < data.size(); i++) {
+			dataArray[i] = data.get(i);
+		}
+		return dataArray;
+	}
+
 	public static Double getTaxes(Double total) {
 		return total * .07 / 1.07;
+	}
+
+	public Double[] parseData(String data) {
+		String[] dati = data.split("_");
+		Double[] doubles = new Double[2];
+		doubles[0] = Double.parseDouble(dati[0]);
+		doubles[1] = Double.parseDouble(dati[1]);
+		return doubles;
 	}
 
 	public static class ReceiptPrinter implements Printable {
