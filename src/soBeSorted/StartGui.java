@@ -75,7 +75,8 @@ public class StartGui {
 		changeScreen(regPanel);
 	}
 	/**
-	 * this method remakes the mainMenu with all its buttons
+	 * this method re-makes the mainMenu with all its buttons.
+	 * In order to change screens the whole main must be wiped then remade with the switch panel.
 	 */
 	public static void addButtons(){
 		GridBagConstraints g = new GridBagConstraints();
@@ -98,6 +99,13 @@ public class StartGui {
 		g.gridx = 1;
 		g.gridheight = 4;
 	}
+	/**
+	 * This method constructs a JPanel that will be the Register interface.
+	 * It will constist of a Heading, a text field to input data,
+	 * two labels to display that data and then a button to print the receipt
+	 * @return
+	 * the finished register Panel
+	 */
 	public static JPanel buildReg(){
 		JPanel reg = new JPanel();
 		JLabel label = new JLabel("The Register");
@@ -191,7 +199,12 @@ public class StartGui {
 		
 		return reg;
 	}
-	
+	/**
+	 * Builds today's Statistics Panel.  Comprised of a heading with
+	 *  a Table that holds the statistical values for both the taxes and the sales
+	 * @return
+	 * The finished JPanel
+	 */
 	public static JPanel buildToday(){
 		JLabel header = new JLabel("Today's Statistics");
 		JLabel taxCol = new JLabel("Tax");
@@ -284,6 +297,13 @@ public class StartGui {
 		today.add(salesTotL,g);
 		return today;
 	}
+	/**
+	 * Very similar to the today statistics method.
+	 *  The only difference is in the list of data 
+	 *  that this method uses for the stats.
+	 * @return
+	 * The finished JPanel for Seven Day Stats
+	 */
 	public static JPanel buildSevenDay(){
 		JLabel header = new JLabel("Today's Statistics");
 		JLabel taxCol = new JLabel("Tax");
@@ -314,7 +334,7 @@ public class StartGui {
 		today.add(totalRow, g);
 		g.gridx = 1; g.gridy = 2;
 		
-		
+		//this is the part that differs
 		Double[] dataSale = getTheMetaData();
 		Double[] dataTax = new Double[dataSale.length];
 		
@@ -374,6 +394,14 @@ public class StartGui {
 		today.add(salesTotL,g);
 		return today;
 	}
+	/**
+	 * this method whips the content Pane of the mainMenu Panel,
+	 *  then whips clean the main menu Pane
+	 *  so that it can rebuild the main menu a different side Panel,
+	 *   either the register, one day stats or seven day stats
+	 * @param newScreen
+	 * the panel that mainMenu will contain next
+	 */
 	public static void changeScreen(JPanel newScreen){
 		frame.getContentPane().removeAll();
 		frame.getContentPane().invalidate();
@@ -395,17 +423,38 @@ public class StartGui {
 		}
 		//frame.validate();
 	}
-	
+	/**
+	 * Calculates the mean from an array of doubles
+	 * @param data
+	 * the list of Doubles
+	 * @return
+	 * the mean
+	 */
 	public static Double getMean(Double[] data){
 		Double total = total(data);
 		return total / data.length;
 	}
-	
+	/**
+	 * Calculaltes the taxes from a sale given the grand Total
+	 * @param total
+	 * the grand total of a sale
+	 * @return
+	 * the sales tax
+	 */
 	public static Double getTaxes(Double total) {
 		return total * .07 / 1.07;
 	}
-	
+	/**
+	 * A complex method that retrieves the sales data from the past 7 days.
+	 * This method then compiles a list of all their grand totals into a large
+	 * array
+	 * @return
+	 * a large array with 7 days worth of sales data
+	 */
 	public static Double[] getTheMetaData(){
+		//retrieving each day from file and converting it into a double array
+		//containing each sale's grand total
+		
 		String[] oneString = retrieveByLine(f.format(getPastDate(0)));
 		Double[] oneDouble = new Double[oneString.length];
 		oneDouble = parseArrayOfStrings(oneString);
@@ -433,14 +482,20 @@ public class StartGui {
 		String[] sevenString = retrieveByLine(f.format(getPastDate(6)));
 		Double[] sevenDouble = new Double[sevenString.length];
 		sevenDouble = parseArrayOfStrings(sevenString);
+		
+		//each day's number of sales
 		int l1 = oneDouble.length, l2 = twoDouble.length, l3 = threeDouble.length, l4 = fourDouble.length, l5 = fiveDouble.length, l6 = sixDouble.length, l7 = sevenDouble.length;
+		//the running total for number of sales, starts from to today and goes backwards
 		int c1 = l1, c2 = c1+l2, c3 = c2+l3, c4 = c3+l4, c5 = c4+l5, c6=c5+l6, c7 = c6+l7;
+		
 		Double[] allData = new Double[c7];
 		for(int i = 0; i < c1; i++){
 			allData[i] = oneDouble[i];
 		}
 		for(int i = c1; i < c2; i++){
 			allData[i] = twoDouble[i-c1];
+			//the minus is so that the day array starts at 0 while
+			//the large array starts after the first set of data
 		}
 		for(int i = c2; i < c3; i++){
 			allData[i] = threeDouble[i-c2];
@@ -460,18 +515,38 @@ public class StartGui {
 		
 		return allData;
 	}
-	
+	/**
+	 * 
+	 * @param amount
+	 * number of days backwards in time
+	 * @return
+	 * A data object of the requested day
+	 */
 	public static Date getPastDate(int amount) {
 		Calendar c = Calendar.getInstance();
 		c.roll(Calendar.DAY_OF_YEAR, -amount);
 		return c.getTime();
 	}
-	
+	/**
+	 * Takes a variance and square roots it to get the Standard Deviation
+	 * @param var
+	 * the variance
+	 * @return
+	 * Standard Deviation
+	 */
 	public static Double getStdDv(Double var){
 		Double stdDev = Math.pow(var, .5);
 		return stdDev;
 	}
-	
+	/**
+	 * from a list of data and its mean this method calculates the variance
+	 * @param mean
+	 * the mean of the data
+	 * @param data
+	 * the list of doubles
+	 * @return
+	 * the variance
+	 */
 	public static Double getVar(Double mean, Double[] data){
 		Double total = 0.0;
 		for(int i = 0; i < data.length; i++){
@@ -480,7 +555,14 @@ public class StartGui {
 		total = (total/((Double)((double)data.length)));
 		return total;
 	}
-	
+	/**
+	 * Appends a file or creates a new file(if this is the first save of the day)
+	 * 
+	 * @param data
+	 * the string to be saved to file
+	 * @param fileName
+	 * the location and name of the save file
+	 */
 	static void metaSave(String data, String fileName) {
 		String[] currentData = retrieveByLine(fileName);
 		String[] newData;
@@ -517,48 +599,75 @@ public class StartGui {
 		}
 		return dataDouble;
 	}
-	
+	/**
+	 * 
+	 * @param data
+	 * takes a single string of data in the form <tt>tax_grandTotal</tt> 
+	 *
+	 * @return
+	 *  a double array of length 2 that contains tax and grandTotal respectively
+	 */
 	public static Double[] parseData(String data) {
+		/*split makes the single string into an array
+		* of strings split at each in instance of "_"
+		* each element does not include the "_"
+		*/
 		String[] dati = data.split("_");
+		
 		Double[] doubles = new Double[2];
 		doubles[0] = Double.parseDouble(dati[0]);
 		doubles[1] = Double.parseDouble(dati[1]);
 		return doubles;
 	}
-	
+	/**
+	 * Reads a file of sales and returns an array with
+	 *  elements each containing each containing a single sail
+	 *  in the format <p>
+	 *  <tt>tax_grandTotal</tt>
+	 * @param fileName
+	 * name/location of the file to be read
+	 * @return
+	 * the array of data from the file
+	 */
 	public static String[] retrieveByLine(String fileName) {
-		File dataFile = new File("C:/" + fileName + ".txt");
+		File dataFile = new File("P:/" + fileName + ".txt");
 		BufferedReader in;
 		List<String> data = new ArrayList();
-	
+		//checks to see if the file that it is trying to reach actually is there
+		
 		if (dataFile.exists()) {
 			try {
 				in = new BufferedReader(new FileReader(dataFile));
-				String currentLine = null;
-				String currentData = null;
+				
+				String currentLine = null;//temp storage
+				
+				//while the current read line still exists
 				while ((currentLine = in.readLine()) != null) {
-					currentData = currentLine;
-					if ((currentData != null)) {
-						data.add(currentData);
-					}
-	
+					data.add(currentLine);
 				}
 				in.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+		
+		//convert the data list into a data array
 		String[] dataArray = new String[data.size()];
 		for (int i = 0; i < data.size(); i++) {
 			dataArray[i] = data.get(i);
 		}
 		return dataArray;
 	}
-	
+	/**
+	 * Saves a String array to file with each element taking its own line
+	 * @param data
+	 * the string array to be saved
+	 * @param fileName
+	 * the file' name/location
+	 */
 	static void saveByLine(String[] data, String fileName) {
-		File saveFile = new File("C:/" + fileName + ".txt");
-		if (!saveFile.exists()) {// this part checks for if the file already
-									// exists
+		File saveFile = new File("P:/" + fileName + ".txt");
+		if (!saveFile.exists()) {// this part checks for if the file already exists
 			//System.out.println("Trying to create new file");
 			try {
 				saveFile.createNewFile();
@@ -586,7 +695,13 @@ public class StartGui {
 			e.printStackTrace();
 		}
 	}
-	
+	/**
+	 * A simpole method to get the total of a double array
+	 * @param data
+	 * the double array to be totaled
+	 * @return
+	 * the total of the double array
+	 */
 	public static Double total(Double[] data){
 		Double total = 0.0;
 		for(Double d: data){
@@ -594,7 +709,15 @@ public class StartGui {
 		}
 		return total;
 	}
-	
+	/**
+	 * 
+	 * This action listener is in charge of the main Menu buttons, it controls
+	 * which button switches to which JPanel.
+	 * 
+	 * This also handles quitting the program with the quit button
+	 * @author 14_thaumersen
+	 *
+	 */
 	private static class AL implements ActionListener{
 
 		@Override
@@ -629,18 +752,28 @@ public class StartGui {
 			
 		}
 	}
-	public static class ReceiptPrinter implements Printable {
+	/**
+	 * an inner class that implements Printable, it itselfs in printable and
+	 * @author 14_thaumersen
+	 *
+	 */
+	private static class ReceiptPrinter implements Printable {
 		Double[] printerPrices;
 		Double printerGrandTotal;
 		Double printerTotal;
 		Double tax;
 
-		// constructor
+		
 		public ReceiptPrinter() {
 		}
 
 		// methods
-
+		/**
+		 * Sets this instance of printer to a specific array of prices,
+		 * from which it calculates the sub-total and tax and Grand total
+		 * @param newPrinterPrices
+		 * the array of prices to be printed
+		 */
 		public void setPrinterPrices(Double[] newPrinterPrices) {
 			this.printerPrices = newPrinterPrices;
 			Double total = 0.0;
@@ -684,10 +817,13 @@ public class StartGui {
 			/* tell the caller that this page is part of the printed document */
 			return PAGE_EXISTS;
 		}
-
+		/**
+		 * this is the method that gets called by an outside class, 
+		 * this method creates the PrinterJob that sets the printing in motion
+		 */
 		public void printReceipt() {
 			PrinterJob job = PrinterJob.getPrinterJob();
-			job.setPrintable(this);
+			job.setPrintable(this);//this is 
 			boolean ok = job.printDialog();
 			if (ok) {
 				try {
