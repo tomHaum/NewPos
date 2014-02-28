@@ -144,11 +144,12 @@ public class StartGui {
 						prices = new Double[currentSalePrices.size()];
 						prices = currentSalePrices
 								.toArray(prices);
+						currentSalePrices.clear();
 						Double subTotal = total(prices);
 						Double tax = subTotal * .07;
 						Double grand = subTotal + tax;
-						taxValue.setText(String.format("%.2f",tax));
-						saleValue.setText(String.format("%.2f",grand));
+						taxValue.setText(String.format("$%.2f",tax));
+						saleValue.setText(String.format("$%.2f",grand));
 						
 						metaSave(String.format("%.2f_%.2f", tax, grand),
 								f.format(getPastDate(0)));
