@@ -7,6 +7,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -120,6 +121,7 @@ public class StartGui {
 		
 		text.setToolTipText("Enter the price of the item, enter 0 after last item has been entered");
 		text.addActionListener(new ActionListener() {
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//System.out.println("hit enter");
@@ -140,7 +142,9 @@ public class StartGui {
 						currentSalePrices.add(price);
 					}
 					if(worked && price == 0.0){
-						JOptionPane.showMessageDialog(new JFrame("Successful Sale"), "A successful transaction has been processed.  You can now print a receipt.");
+						JOptionPane.showMessageDialog(new JFrame("Successful Sale"), 
+								"A successful transaction has been processed." +
+								"  You can now print a receipt.");
 						prices = new Double[currentSalePrices.size()];
 						prices = currentSalePrices
 								.toArray(prices);
@@ -153,12 +157,14 @@ public class StartGui {
 						
 						metaSave(String.format("%.2f_%.2f", tax, grand),
 								f.format(getPastDate(0)));
+						//prices = null;
 					}
 					
 				}
 				source.setText("");
 			}
 		});
+		print.setToolTipText("Print the Receipt");
 		print.addActionListener(new ActionListener(){
 
 			@Override
@@ -306,7 +312,7 @@ public class StartGui {
 	 * The finished JPanel for Seven Day Stats
 	 */
 	public static JPanel buildSevenDay(){
-		JLabel header = new JLabel("Today's Statistics");
+		JLabel header = new JLabel("Seven Day Statistics");
 		JLabel taxCol = new JLabel("Tax");
 		JLabel saleCol = new JLabel("Sale");
 		JLabel meanRow = new JLabel("Mean");
@@ -337,6 +343,7 @@ public class StartGui {
 		
 		//this is the part that differs
 		Double[] dataSale = getTheMetaData();
+		//end difference
 		Double[] dataTax = new Double[dataSale.length];
 		
 		for(int i = 0; i < dataSale.length; i++){
@@ -631,7 +638,7 @@ public class StartGui {
 	 * the array of data from the file
 	 */
 	public static String[] retrieveByLine(String fileName) {
-		File dataFile = new File("P:/" + fileName + ".txt");
+		File dataFile = new File("C:/" + fileName + ".txt");
 		BufferedReader in;
 		List<String> data = new ArrayList();
 		//checks to see if the file that it is trying to reach actually is there
@@ -667,7 +674,7 @@ public class StartGui {
 	 * the file' name/location
 	 */
 	static void saveByLine(String[] data, String fileName) {
-		File saveFile = new File("P:/" + fileName + ".txt");
+		File saveFile = new File("C:/" + fileName + ".txt");
 		if (!saveFile.exists()) {// this part checks for if the file already exists
 			//System.out.println("Trying to create new file");
 			try {
